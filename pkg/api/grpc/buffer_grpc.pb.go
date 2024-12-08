@@ -19,18 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	BufferService_AppendBuf_FullMethodName = "/buffer.BufferService/AppendBuf"
-	BufferService_PopTop_FullMethodName    = "/buffer.BufferService/PopTop"
-	BufferService_PopBottom_FullMethodName = "/buffer.BufferService/PopBottom"
+	BufferService_AppendRequest_FullMethodName = "/buffer.BufferService/AppendRequest"
+	BufferService_PopTop_FullMethodName        = "/buffer.BufferService/PopTop"
+	BufferService_PopBottom_FullMethodName     = "/buffer.BufferService/PopBottom"
 )
 
 // BufferServiceClient is the client API for BufferService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BufferServiceClient interface {
-	AppendBuf(ctx context.Context, in *AppendBufRequest, opts ...grpc.CallOption) (*AppendBufResponse, error)
-	PopTop(ctx context.Context, in *PopTopRequest, opts ...grpc.CallOption) (*PopTopResponse, error)
-	PopBottom(ctx context.Context, in *PopBottomRequest, opts ...grpc.CallOption) (*PopBottomResponse, error)
+	AppendRequest(ctx context.Context, in *AppendRequestIn, opts ...grpc.CallOption) (*AppendRequestOut, error)
+	PopTop(ctx context.Context, in *PopTopIn, opts ...grpc.CallOption) (*PopTopOut, error)
+	PopBottom(ctx context.Context, in *PopBottomIn, opts ...grpc.CallOption) (*PopBottomOut, error)
 }
 
 type bufferServiceClient struct {
@@ -41,17 +41,17 @@ func NewBufferServiceClient(cc grpc.ClientConnInterface) BufferServiceClient {
 	return &bufferServiceClient{cc}
 }
 
-func (c *bufferServiceClient) AppendBuf(ctx context.Context, in *AppendBufRequest, opts ...grpc.CallOption) (*AppendBufResponse, error) {
-	out := new(AppendBufResponse)
-	err := c.cc.Invoke(ctx, BufferService_AppendBuf_FullMethodName, in, out, opts...)
+func (c *bufferServiceClient) AppendRequest(ctx context.Context, in *AppendRequestIn, opts ...grpc.CallOption) (*AppendRequestOut, error) {
+	out := new(AppendRequestOut)
+	err := c.cc.Invoke(ctx, BufferService_AppendRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bufferServiceClient) PopTop(ctx context.Context, in *PopTopRequest, opts ...grpc.CallOption) (*PopTopResponse, error) {
-	out := new(PopTopResponse)
+func (c *bufferServiceClient) PopTop(ctx context.Context, in *PopTopIn, opts ...grpc.CallOption) (*PopTopOut, error) {
+	out := new(PopTopOut)
 	err := c.cc.Invoke(ctx, BufferService_PopTop_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -59,8 +59,8 @@ func (c *bufferServiceClient) PopTop(ctx context.Context, in *PopTopRequest, opt
 	return out, nil
 }
 
-func (c *bufferServiceClient) PopBottom(ctx context.Context, in *PopBottomRequest, opts ...grpc.CallOption) (*PopBottomResponse, error) {
-	out := new(PopBottomResponse)
+func (c *bufferServiceClient) PopBottom(ctx context.Context, in *PopBottomIn, opts ...grpc.CallOption) (*PopBottomOut, error) {
+	out := new(PopBottomOut)
 	err := c.cc.Invoke(ctx, BufferService_PopBottom_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -72,9 +72,9 @@ func (c *bufferServiceClient) PopBottom(ctx context.Context, in *PopBottomReques
 // All implementations must embed UnimplementedBufferServiceServer
 // for forward compatibility
 type BufferServiceServer interface {
-	AppendBuf(context.Context, *AppendBufRequest) (*AppendBufResponse, error)
-	PopTop(context.Context, *PopTopRequest) (*PopTopResponse, error)
-	PopBottom(context.Context, *PopBottomRequest) (*PopBottomResponse, error)
+	AppendRequest(context.Context, *AppendRequestIn) (*AppendRequestOut, error)
+	PopTop(context.Context, *PopTopIn) (*PopTopOut, error)
+	PopBottom(context.Context, *PopBottomIn) (*PopBottomOut, error)
 	mustEmbedUnimplementedBufferServiceServer()
 }
 
@@ -82,13 +82,13 @@ type BufferServiceServer interface {
 type UnimplementedBufferServiceServer struct {
 }
 
-func (UnimplementedBufferServiceServer) AppendBuf(context.Context, *AppendBufRequest) (*AppendBufResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AppendBuf not implemented")
+func (UnimplementedBufferServiceServer) AppendRequest(context.Context, *AppendRequestIn) (*AppendRequestOut, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AppendRequest not implemented")
 }
-func (UnimplementedBufferServiceServer) PopTop(context.Context, *PopTopRequest) (*PopTopResponse, error) {
+func (UnimplementedBufferServiceServer) PopTop(context.Context, *PopTopIn) (*PopTopOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PopTop not implemented")
 }
-func (UnimplementedBufferServiceServer) PopBottom(context.Context, *PopBottomRequest) (*PopBottomResponse, error) {
+func (UnimplementedBufferServiceServer) PopBottom(context.Context, *PopBottomIn) (*PopBottomOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PopBottom not implemented")
 }
 func (UnimplementedBufferServiceServer) mustEmbedUnimplementedBufferServiceServer() {}
@@ -104,26 +104,26 @@ func RegisterBufferServiceServer(s grpc.ServiceRegistrar, srv BufferServiceServe
 	s.RegisterService(&BufferService_ServiceDesc, srv)
 }
 
-func _BufferService_AppendBuf_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AppendBufRequest)
+func _BufferService_AppendRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AppendRequestIn)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BufferServiceServer).AppendBuf(ctx, in)
+		return srv.(BufferServiceServer).AppendRequest(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BufferService_AppendBuf_FullMethodName,
+		FullMethod: BufferService_AppendRequest_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BufferServiceServer).AppendBuf(ctx, req.(*AppendBufRequest))
+		return srv.(BufferServiceServer).AppendRequest(ctx, req.(*AppendRequestIn))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _BufferService_PopTop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PopTopRequest)
+	in := new(PopTopIn)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -135,13 +135,13 @@ func _BufferService_PopTop_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: BufferService_PopTop_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BufferServiceServer).PopTop(ctx, req.(*PopTopRequest))
+		return srv.(BufferServiceServer).PopTop(ctx, req.(*PopTopIn))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _BufferService_PopBottom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PopBottomRequest)
+	in := new(PopBottomIn)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func _BufferService_PopBottom_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: BufferService_PopBottom_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BufferServiceServer).PopBottom(ctx, req.(*PopBottomRequest))
+		return srv.(BufferServiceServer).PopBottom(ctx, req.(*PopBottomIn))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -166,8 +166,8 @@ var BufferService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BufferServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AppendBuf",
-			Handler:    _BufferService_AppendBuf_Handler,
+			MethodName: "AppendRequest",
+			Handler:    _BufferService_AppendRequest_Handler,
 		},
 		{
 			MethodName: "PopTop",

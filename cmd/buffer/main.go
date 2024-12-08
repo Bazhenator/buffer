@@ -20,8 +20,10 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/Bazhenator/requester/configs"
+	"github.com/Bazhenator/buffer/internal/delivery"
+	"github.com/Bazhenator/buffer/configs"
 	"github.com/Bazhenator/tools/src/logger"
+	pb "github.com/Bazhenator/buffer/pkg/api/grpc"
 	middlewareLogging "github.com/Bazhenator/tools/src/middleware/log"
 	grpcListener "github.com/Bazhenator/tools/src/server/grpc/listener"
 )
@@ -74,6 +76,11 @@ func run() error {
 	reflection.Register(grpcServer)
 
 	// TODO: add repos/logic/delivery configs
+
+	// Initializing delivery
+	server := delivery.NewBufferServer(config, l)
+	pb.RegisterBufferServiceServer(grpcServer, server)
+
 
 	lis, deferGrpc, err := grpcListener.NewGrpcListener(config.Grpc)
 	if err != nil {
