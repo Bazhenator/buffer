@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package buffer;
+option go_package = "github.com/Bazhenator/buffer";
+
+service BufferService {
+  rpc AppendBuf (AppendBufRequest) returns (AppendBufResponse); // if buffer has empty space req will be appended, else method returns size and false value
+  rpc PopTop (PopTopRequest) returns (PopTopResponse);          // if cleaning team is available it will take the request from the top of queue
+  rpc PopBottom (PopBottomRequest) returns (PopBottomResponse); // if the priority of bottom req is less than cur req, bottom req will be popped out 
+}
+
+message Request {
+  uint64            id = 1;
+  uint64     client_id = 2;
+  uint32      priority = 3;
+  string cleaning_type = 4;
+}
+
+message AppendBufRequest {
+  Request req = 1;
+}
+
+message AppendBufResponse {
+  uint64 size = 1;
+  bool status = 2;
+}
+
+message PopTopRequest {
+
+}
+
+message PopTopResponse {
+  Request req = 1;
+}
+
+message PopBottomRequest {
+  Request cur_req = 1;
+}
+
+message PopBottomResponse {
+  Request declined_req = 1;
+  bool status = 2;
+}
