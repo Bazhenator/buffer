@@ -22,11 +22,16 @@ import (
 
 	"github.com/Bazhenator/buffer/configs"
 	"github.com/Bazhenator/buffer/internal/delivery"
+	"github.com/Bazhenator/buffer/internal/entities"
 	"github.com/Bazhenator/buffer/internal/logic"
 	pb "github.com/Bazhenator/buffer/pkg/api/grpc"
 	"github.com/Bazhenator/tools/src/logger"
 	middlewareLogging "github.com/Bazhenator/tools/src/middleware/log"
 	grpcListener "github.com/Bazhenator/tools/src/server/grpc/listener"
+)
+
+const (
+	BufCapacity = 5
 )
 
 func main() {
@@ -76,8 +81,11 @@ func run() error {
 
 	reflection.Register(grpcServer)
 
-	// TODO: add repos/logic/delivery configs
-	logic := logic.NewLogic()
+	// Initializing buffer
+	buffer := entities.NewBuffer(BufCapacity)
+	
+	// Initializing logic
+	logic := logic.NewLogic(config, l, buffer)
 
 	// Initializing delivery
 	server := delivery.NewBufferServer(config, l, logic)
