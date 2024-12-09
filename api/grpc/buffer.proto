@@ -13,7 +13,7 @@ message Request {
   uint64            id = 1;
   uint64     client_id = 2;
   uint32      priority = 3;
-  string cleaning_type = 4;
+  uint32 cleaning_type = 4;
 }
 
 message AppendRequestIn {
