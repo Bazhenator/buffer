@@ -14,10 +14,6 @@ type Config struct {
 	LoggerConfig *logger.LoggerConfig
 }
 
-type AppVersionCheckConfig struct {
-	Host string
-}
-
 // NewConfig returns application config instance
 func NewConfig() (*Config, error) {
 	var errorBuilder error

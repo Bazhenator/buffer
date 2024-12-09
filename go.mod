@@ -3,7 +3,6 @@ module github.com/Bazhenator/buffer
 go 1.23.4
 
 require (
-	github.com/Bazhenator/requester v0.0.0-20241208151640-1f4a0f850f96
 	github.com/Bazhenator/tools v0.0.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.57.0
@@ -25,4 +24,5 @@ require (
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241118233622-e639e219e697 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
