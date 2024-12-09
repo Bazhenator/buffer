@@ -14,12 +14,3 @@ type AppendRequestOut struct {
 type PopTopOut struct {
 	Request *entities.Request
 }
-
-type PopBottomIn struct {
-	CurRequest *entities.Request
-}
-
-type PopBottomOut struct {
-	DeclinedRequest *entities.Request
-	Status          bool
-}

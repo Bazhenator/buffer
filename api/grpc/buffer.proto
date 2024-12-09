@@ -6,7 +6,6 @@ option go_package = "github.com/Bazhenator/buffer";
 service BufferService {
   rpc AppendRequest (AppendRequestIn) returns (AppendRequestOut); // if buffer has empty space req will be appended, else method returns size and false value
   rpc PopTop (PopTopIn) returns (PopTopOut);                      // if cleaning team is available it will take the request from the top of queue
-  rpc PopBottom (PopBottomIn) returns (PopBottomOut);             // if the priority of bottom req is less than cur req, bottom req will be popped out 
 }
 
 message Request {
@@ -29,13 +28,4 @@ message PopTopIn {}
 
 message PopTopOut {
   Request req = 1;
-}
-
-message PopBottomIn {
-  Request cur_req = 1;
-}
-
-message PopBottomOut {
-  Request declined_req = 1;
-  bool status = 2;
 }

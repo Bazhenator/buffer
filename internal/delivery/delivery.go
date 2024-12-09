@@ -70,30 +70,3 @@ func (s *BufferServer) PopTop(ctx context.Context, _ *buffer.PopTopIn) (*buffer.
 		},
 	}, nil
 }
-
-func (s *BufferServer) PopBottom(ctx context.Context, in *buffer.PopBottomIn) (*buffer.PopBottomOut, error) {
-	s.l.DebugCtx(ctx, "PopBottom data", logger.NewField("in", in))
-	req := in.GetCurReq()
-
-	answer, err := s.logic.PopBottom(ctx, &dto.PopBottomIn{
-		CurRequest: &entities.Request {
-			Id: req.GetId(),
-			ClientId: req.GetClientId(),
-			CleaningType: entities.CleaningType(req.GetCleaningType()),
-			Priority: entities.Priority(req.GetPriority()),
-		},
-	})
-	if err != nil {
-		s.l.ErrorCtx(ctx, "PopBottom error", logger.NewErrorField(err))
-		return nil, err
-	}
-
-	return &buffer.PopBottomOut{
-		DeclinedReq: &buffer.Request{
-			Id: answer.DeclinedRequest.Id,
-			ClientId: answer.DeclinedRequest.ClientId,
-			CleaningType: uint32(answer.DeclinedRequest.CleaningType),
-			Priority: uint32(answer.DeclinedRequest.Priority),
-		},
-	}, nil
-}

@@ -45,20 +45,75 @@ func (b *Buffer) Append(req *Request) uint64 {
 	return b.Size
 }
 
-// PopTop pops out Buffer.Head request and returns it if Buffer is not empty, else returns error
+// PopTop pops out Buffer.Head request, shifts the remaining elements to start from index 0,
+// and updates Head and Tail pointers. 
+// Returns the popped request or an error if the buffer is empty.
 func (b *Buffer) PopTop() (*Request, error) {
 	if b.Size == 0 {
 		return nil, errors.ErrEmptyBuf
 	}
 
-	return b.Head, nil
+	// Save the b.Head
+	removedRequest := b.Head
+
+	// Remove the first element and shift remaining elements
+	b.Requests = b.Requests[1:]
+	b.Size--
+
+	// Update b.Head and b.Tail
+	if b.Size == 0 {
+		b.Head = nil
+		b.Tail = nil
+	} else {
+		b.Head = b.Requests[0]
+	}
+
+	return removedRequest, nil
 }
 
-// PopBottom pops out Buffer.Tail and returns it if buffer is not empty, else returns error
+
+// PopBottom pops out Buffer.Tail request, removes it from the end of the queue,
+// and updates Tail pointer. 
+// Returns the popped request or an error if the buffer is empty.
 func (b *Buffer) PopBottom() (*Request, error) {
 	if b.Size == 0 {
 		return nil, errors.ErrEmptyBuf
 	}
 
-	return b.Tail, nil
+	// Save the b.Tail
+	removedRequest := b.Tail
+
+	// Remove the last element
+	b.Requests = b.Requests[:len(b.Requests)-1]
+	b.Size--
+
+	// Update Tail
+	if b.Size == 0 {
+		b.Head = nil
+		b.Tail = nil
+	} else {
+		b.Tail = b.Requests[len(b.Requests)-1]
+	}
+
+	return removedRequest, nil
+}
+
+// GetHead returns Buffer.Head
+func (b *Buffer) GetHead() *Request {
+	return b.Head
+}
+
+// GetTail returns Buffer.Tail
+func (b *Buffer) GetTail() *Request {
+	return b.Tail
+}
+
+// GetCapacity returns Buffer.Capacity
+func (b *Buffer) GetCapacity() uint64 {
+	return b.Capacity
+}
+
+// GetSize returns Buffer.Size
+func (b *Buffer) GetSize() uint64 {
+	return b.Size
 }

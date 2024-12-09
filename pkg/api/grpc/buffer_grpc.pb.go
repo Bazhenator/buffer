@@ -21,7 +21,6 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	BufferService_AppendRequest_FullMethodName = "/buffer.BufferService/AppendRequest"
 	BufferService_PopTop_FullMethodName        = "/buffer.BufferService/PopTop"
-	BufferService_PopBottom_FullMethodName     = "/buffer.BufferService/PopBottom"
 )
 
 // BufferServiceClient is the client API for BufferService service.
@@ -30,7 +29,6 @@ const (
 type BufferServiceClient interface {
 	AppendRequest(ctx context.Context, in *AppendRequestIn, opts ...grpc.CallOption) (*AppendRequestOut, error)
 	PopTop(ctx context.Context, in *PopTopIn, opts ...grpc.CallOption) (*PopTopOut, error)
-	PopBottom(ctx context.Context, in *PopBottomIn, opts ...grpc.CallOption) (*PopBottomOut, error)
 }
 
 type bufferServiceClient struct {
@@ -59,22 +57,12 @@ func (c *bufferServiceClient) PopTop(ctx context.Context, in *PopTopIn, opts ...
 	return out, nil
 }
 
-func (c *bufferServiceClient) PopBottom(ctx context.Context, in *PopBottomIn, opts ...grpc.CallOption) (*PopBottomOut, error) {
-	out := new(PopBottomOut)
-	err := c.cc.Invoke(ctx, BufferService_PopBottom_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // BufferServiceServer is the server API for BufferService service.
 // All implementations must embed UnimplementedBufferServiceServer
 // for forward compatibility
 type BufferServiceServer interface {
 	AppendRequest(context.Context, *AppendRequestIn) (*AppendRequestOut, error)
 	PopTop(context.Context, *PopTopIn) (*PopTopOut, error)
-	PopBottom(context.Context, *PopBottomIn) (*PopBottomOut, error)
 	mustEmbedUnimplementedBufferServiceServer()
 }
 
@@ -87,9 +75,6 @@ func (UnimplementedBufferServiceServer) AppendRequest(context.Context, *AppendRe
 }
 func (UnimplementedBufferServiceServer) PopTop(context.Context, *PopTopIn) (*PopTopOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PopTop not implemented")
-}
-func (UnimplementedBufferServiceServer) PopBottom(context.Context, *PopBottomIn) (*PopBottomOut, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PopBottom not implemented")
 }
 func (UnimplementedBufferServiceServer) mustEmbedUnimplementedBufferServiceServer() {}
 
@@ -140,24 +125,6 @@ func _BufferService_PopTop_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BufferService_PopBottom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PopBottomIn)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BufferServiceServer).PopBottom(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BufferService_PopBottom_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BufferServiceServer).PopBottom(ctx, req.(*PopBottomIn))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // BufferService_ServiceDesc is the grpc.ServiceDesc for BufferService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -172,10 +139,6 @@ var BufferService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PopTop",
 			Handler:    _BufferService_PopTop_Handler,
-		},
-		{
-			MethodName: "PopBottom",
-			Handler:    _BufferService_PopBottom_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
