@@ -20,10 +20,11 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/Bazhenator/buffer/internal/delivery"
 	"github.com/Bazhenator/buffer/configs"
-	"github.com/Bazhenator/tools/src/logger"
+	"github.com/Bazhenator/buffer/internal/delivery"
+	"github.com/Bazhenator/buffer/internal/logic"
 	pb "github.com/Bazhenator/buffer/pkg/api/grpc"
+	"github.com/Bazhenator/tools/src/logger"
 	middlewareLogging "github.com/Bazhenator/tools/src/middleware/log"
 	grpcListener "github.com/Bazhenator/tools/src/server/grpc/listener"
 )
@@ -55,7 +56,7 @@ func run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Initializing requester's grpc server 
+	// Initializing requester's grpc server
 	grpcServer := newGrpcServer(config, l.Logger)
 	defer grpcServer.GracefulStop()
 
@@ -76,11 +77,11 @@ func run() error {
 	reflection.Register(grpcServer)
 
 	// TODO: add repos/logic/delivery configs
+	logic := logic.NewLogic()
 
 	// Initializing delivery
-	server := delivery.NewBufferServer(config, l)
+	server := delivery.NewBufferServer(config, l, logic)
 	pb.RegisterBufferServiceServer(grpcServer, server)
-
 
 	lis, deferGrpc, err := grpcListener.NewGrpcListener(config.Grpc)
 	if err != nil {
@@ -108,7 +109,7 @@ func newGrpcServer(c *configs.Config, l *zap.Logger) *grpc.Server {
 		grpcMiddleware.WithStreamServerChain(
 			grpcRecovery.StreamServerInterceptor(),
 			grpcCtxTags.StreamServerInterceptor(),
-			otelgrpc.StreamServerInterceptor(), 		
+			otelgrpc.StreamServerInterceptor(),
 			grpcZap.StreamServerInterceptor(l, grpcZap.WithMessageProducer(middlewareLogging.LogsProducer)),
 		),
 	)
