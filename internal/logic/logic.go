@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"sync"
 
 	"github.com/Bazhenator/buffer/configs"
 	"github.com/Bazhenator/buffer/internal/entities"
@@ -10,16 +11,18 @@ import (
 )
 
 type Logic struct {
-	c *configs.Config
-	l *logger.Logger
+	c  *configs.Config
+	l  *logger.Logger
+	mu sync.Mutex
 
 	buffer *entities.Buffer
 }
 
 func NewLogic(c *configs.Config, l *logger.Logger, b *entities.Buffer) *Logic {
 	return &Logic{
-		c: c,
-		l: l,
+		c:  c,
+		l:  l,
+		mu: sync.Mutex{},
 
 		buffer: b,
 	}
@@ -27,6 +30,8 @@ func NewLogic(c *configs.Config, l *logger.Logger, b *entities.Buffer) *Logic {
 
 func (l *Logic) AppendRequest(ctx context.Context, in *dto.AppendRequestIn) (*dto.AppendRequestOut, error) {
 	l.l.InfoCtx(ctx, "AppendRequest started with", logger.NewField("data", in))
+	l.mu.Lock()
+	defer l.mu.Unlock()
 
 	// Check available space in l.buffer
 	if l.buffer.GetSize() == l.buffer.GetCapacity() {
@@ -56,7 +61,7 @@ func (l *Logic) AppendRequest(ctx context.Context, in *dto.AppendRequestIn) (*dt
 		}
 	} else {
 		l.l.Info("buffer has available space", logger.NewField("size", l.buffer.GetSize()))
-		
+
 		_ = l.buffer.Append(in.Request)
 		l.l.InfoCtx(ctx, "AppendRequest finished successfully with", logger.NewField("data", in))
 	}
