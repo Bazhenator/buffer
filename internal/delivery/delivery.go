@@ -3,6 +3,8 @@ package delivery
 import (
 	"context"
 
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	"github.com/Bazhenator/buffer/configs"
 	"github.com/Bazhenator/buffer/internal/entities"
 	"github.com/Bazhenator/buffer/internal/logic"
@@ -52,7 +54,7 @@ func (s *BufferServer) AppendRequest(ctx context.Context, in *buffer.AppendReque
 	}, nil
 }
 
-func (s *BufferServer) PopTop(ctx context.Context, _ *buffer.PopTopIn) (*buffer.PopTopOut, error) {
+func (s *BufferServer) PopTop(ctx context.Context, _ *emptypb.Empty) (*buffer.PopTopOut, error) {
 	s.l.DebugCtx(ctx, "PopTop data", logger.NewField("in", nil))
 
 	answer, err := s.logic.PopTop(ctx)
