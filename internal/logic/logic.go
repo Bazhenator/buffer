@@ -63,7 +63,7 @@ func (l *Logic) AppendRequest(ctx context.Context, in *dto.AppendRequestIn) erro
 		} else {
 			l.l.InfoCtx(ctx, "AppendRequest failed with low priority", logger.NewField("priority", in.Request.Priority))
 			l.l.InfoCtx(ctx, "Request declined", logger.NewField("id", in.Request.Id))
-			return nil
+			return errors.New("low priority. declined")
 		}
 	} else {
 		l.l.Info("buffer has available space", logger.NewField("size", l.buffer.GetSize() + 1))
