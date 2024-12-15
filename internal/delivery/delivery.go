@@ -7,10 +7,9 @@ import (
 
 	"github.com/Bazhenator/buffer/configs"
 	"github.com/Bazhenator/buffer/internal/entities"
-	"github.com/Bazhenator/buffer/internal/logic"
-	"github.com/Bazhenator/buffer/pkg/api/grpc"
-	"github.com/Bazhenator/tools/src/logger"
 	"github.com/Bazhenator/buffer/internal/logic/dto"
+	buffer "github.com/Bazhenator/buffer/pkg/api/grpc"
+	"github.com/Bazhenator/tools/src/logger"
 )
 
 type BufferServer struct {
@@ -18,29 +17,30 @@ type BufferServer struct {
 
 	c *configs.Config
 	l *logger.Logger
-	
-	logic logic.BufferLogic
+
+	logic BufferLogic
 }
 
-func NewBufferServer(c *configs.Config, l *logger.Logger, logic logic.BufferLogic) *BufferServer {
+func NewBufferServer(c *configs.Config, l *logger.Logger, logic BufferLogic) *BufferServer {
 	return &BufferServer{
 		c: c,
 		l: l,
 
 		logic: logic,
 	}
-} 
+}
 
-func (s *BufferServer) AppendRequest(ctx context.Context, in *buffer.AppendRequestIn) (*buffer.AppendRequestOut, error) {
-	s.l.DebugCtx(ctx, "AppendRequest data", logger.NewField("in", in))
+func (s *BufferServer) AppendRequest(ctx context.Context, in *buffer.AppendRequestIn) (*emptypb.Empty, error) {
+	s.l.DebugCtx(ctx, "AppendRequest started with", logger.NewField("data", in))
 	req := in.GetReq()
 
-	answer, err := s.logic.AppendRequest(ctx, &dto.AppendRequestIn{
-		Request: &entities.Request {
-			Id: req.GetId(),
-			ClientId: req.GetClientId(),
+	err := s.logic.AppendRequest(ctx, &dto.AppendRequestIn{
+		Request: &entities.Request{
+			Id:           req.GetId(),
+			ClientId:     req.GetClientId(),
 			CleaningType: entities.CleaningType(req.GetCleaningType()),
-			Priority: entities.Priority(req.GetPriority()),
+			Priority:     entities.Priority(req.GetPriority()),
+			GeneratorId:  *req.GeneratorId,
 		},
 	})
 	if err != nil {
@@ -48,10 +48,7 @@ func (s *BufferServer) AppendRequest(ctx context.Context, in *buffer.AppendReque
 		return nil, err
 	}
 
-	return &buffer.AppendRequestOut{
-		Size: answer.Size,
-		Status: answer.Status,
-	}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *BufferServer) PopTop(ctx context.Context, _ *emptypb.Empty) (*buffer.PopTopOut, error) {
@@ -63,12 +60,17 @@ func (s *BufferServer) PopTop(ctx context.Context, _ *emptypb.Empty) (*buffer.Po
 		return nil, err
 	}
 
+	totalTime := answer.Request.TimeInBuffer.Seconds()
+
 	return &buffer.PopTopOut{
 		Req: &buffer.Request{
-			Id: answer.Request.Id,
-			ClientId: answer.Request.ClientId,
+			Id:           answer.Request.Id,
+			ClientId:     answer.Request.ClientId,
 			CleaningType: uint32(answer.Request.CleaningType),
-			Priority: uint32(answer.Request.Priority),
+			Priority:     uint32(answer.Request.Priority),
+			Status:       &answer.Request.Status,
+			GeneratorId:  &answer.Request.GeneratorId,
+			TimeInBuffer: &totalTime,
 		},
 	}, nil
 }

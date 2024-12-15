@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"errors"
 	"sync"
 
 	"github.com/Bazhenator/buffer/configs"
@@ -28,8 +29,13 @@ func NewLogic(c *configs.Config, l *logger.Logger, b *entities.Buffer) *Logic {
 	}
 }
 
-func (l *Logic) AppendRequest(ctx context.Context, in *dto.AppendRequestIn) (*dto.AppendRequestOut, error) {
+func (l *Logic) AppendRequest(ctx context.Context, in *dto.AppendRequestIn) error {
 	l.l.InfoCtx(ctx, "AppendRequest started with", logger.NewField("data", in))
+	if l.buffer.GetCapacity() == 0 {
+		l.l.ErrorCtx(ctx, "buffer has zero capacity")
+		return errors.New("invalid buffer's capacity")
+	}
+	
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -48,7 +54,7 @@ func (l *Logic) AppendRequest(ctx context.Context, in *dto.AppendRequestIn) (*dt
 			declinedReq, err := l.buffer.PopBottom()
 			if err != nil {
 				l.l.ErrorCtx(ctx, "PopBottom failed with error:", logger.NewErrorField(err))
-				return nil, err
+				return err
 			}
 			l.l.InfoCtx(ctx, "PopBottom finished successfully with", logger.NewField("declined", declinedReq))
 
@@ -57,16 +63,16 @@ func (l *Logic) AppendRequest(ctx context.Context, in *dto.AppendRequestIn) (*dt
 		} else {
 			l.l.InfoCtx(ctx, "AppendRequest failed with low priority", logger.NewField("priority", in.Request.Priority))
 			l.l.InfoCtx(ctx, "Request declined", logger.NewField("id", in.Request.Id))
-			return &dto.AppendRequestOut{Size: l.buffer.GetSize(), Status: false}, nil
+			return nil
 		}
 	} else {
-		l.l.Info("buffer has available space", logger.NewField("size", l.buffer.GetSize()))
+		l.l.Info("buffer has available space", logger.NewField("size", l.buffer.GetSize() + 1))
 
 		_ = l.buffer.Append(in.Request)
 		l.l.InfoCtx(ctx, "AppendRequest finished successfully with", logger.NewField("data", in))
 	}
 
-	return &dto.AppendRequestOut{Size: l.buffer.GetSize(), Status: true}, nil
+	return nil
 }
 
 func (l *Logic) PopTop(ctx context.Context) (*dto.PopTopOut, error) {

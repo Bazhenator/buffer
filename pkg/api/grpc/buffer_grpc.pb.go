@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BufferServiceClient interface {
-	AppendRequest(ctx context.Context, in *AppendRequestIn, opts ...grpc.CallOption) (*AppendRequestOut, error)
+	AppendRequest(ctx context.Context, in *AppendRequestIn, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	PopTop(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PopTopOut, error)
 }
 
@@ -40,8 +40,8 @@ func NewBufferServiceClient(cc grpc.ClientConnInterface) BufferServiceClient {
 	return &bufferServiceClient{cc}
 }
 
-func (c *bufferServiceClient) AppendRequest(ctx context.Context, in *AppendRequestIn, opts ...grpc.CallOption) (*AppendRequestOut, error) {
-	out := new(AppendRequestOut)
+func (c *bufferServiceClient) AppendRequest(ctx context.Context, in *AppendRequestIn, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, BufferService_AppendRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (c *bufferServiceClient) PopTop(ctx context.Context, in *emptypb.Empty, opt
 // All implementations must embed UnimplementedBufferServiceServer
 // for forward compatibility
 type BufferServiceServer interface {
-	AppendRequest(context.Context, *AppendRequestIn) (*AppendRequestOut, error)
+	AppendRequest(context.Context, *AppendRequestIn) (*emptypb.Empty, error)
 	PopTop(context.Context, *emptypb.Empty) (*PopTopOut, error)
 	mustEmbedUnimplementedBufferServiceServer()
 }
@@ -71,7 +71,7 @@ type BufferServiceServer interface {
 type UnimplementedBufferServiceServer struct {
 }
 
-func (UnimplementedBufferServiceServer) AppendRequest(context.Context, *AppendRequestIn) (*AppendRequestOut, error) {
+func (UnimplementedBufferServiceServer) AppendRequest(context.Context, *AppendRequestIn) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AppendRequest not implemented")
 }
 func (UnimplementedBufferServiceServer) PopTop(context.Context, *emptypb.Empty) (*PopTopOut, error) {

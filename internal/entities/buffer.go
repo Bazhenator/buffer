@@ -1,11 +1,14 @@
 package entities
 
 import (
+	"time"
+
 	"github.com/Bazhenator/buffer/internal/errors"
 )
 
 const (
 	initBufSize = 0 // initBufSize - initial request's buffer size
+	statusAccepted = 1 // status 1 when request is accepted
 )
 
 // Buffer is a main entity which represents request's buffer of cleaning-service (FIFO queue)
@@ -32,9 +35,12 @@ func NewBuffer(capacity uint64) *Buffer {
 	}
 }
 
-// Append appends new request to Buffer.Requests, sets Head, Tail requests and returns Buffer.Size
+// Append appends new request to Buffer.Requests, sets Head, Tail pointers.
+// Returns Buffer.Size.
 func (b *Buffer) Append(req *Request) uint64 {
 	b.Requests = append(b.Requests, req)
+	req.Status = statusAccepted
+	req.AppendTime = time.Now() // request appends now
 	b.Size = uint64(len(b.Requests))
 
 	if b.Size == 1 {
@@ -58,6 +64,7 @@ func (b *Buffer) PopTop() (*Request, error) {
 
 	// Remove the first element and shift remaining elements
 	b.Requests = b.Requests[1:]
+	removedRequest.TimeInBuffer = time.Since(removedRequest.AppendTime) // request spent this time in buffer
 	b.Size--
 
 	// Update b.Head and b.Tail

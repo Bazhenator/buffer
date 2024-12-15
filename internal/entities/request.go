@@ -1,11 +1,12 @@
 package entities
 
+import "time"
 
 type CleaningType uint // CleaningType is a special type of cleaning clients can request in cleaning-service
 
 const (
 	Daily CleaningType = iota + 1
-	Deep 
+	Deep
 	PostConstruction
 	Express
 	Office
@@ -24,8 +25,12 @@ const (
 )
 
 type Request struct {
-	Id uint64
-	ClientId uint64
+	Id           uint64
+	ClientId     uint64
 	CleaningType CleaningType
-	Priority Priority
+	Priority     Priority
+	GeneratorId  uint64
+	Status       uint32
+	AppendTime   time.Time
+	TimeInBuffer time.Duration
 }

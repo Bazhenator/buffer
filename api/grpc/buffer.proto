@@ -5,24 +5,22 @@ import "google/protobuf/empty.proto";
 option go_package = "github.com/Bazhenator/buffer";
 
 service BufferService {
-  rpc AppendRequest (AppendRequestIn) returns (AppendRequestOut); // if buffer has empty space req will be appended, else method returns size and false value
-  rpc PopTop (google.protobuf.Empty) returns (PopTopOut);         // if cleaning team is available it will take the request from the top of queue
+  rpc AppendRequest (AppendRequestIn) returns (google.protobuf.Empty); // if buffer has empty space req will be appended
+  rpc PopTop (google.protobuf.Empty) returns (PopTopOut);              // if cleaning team is available it will take the request from the top of queue
 }
 
 message Request {
-  uint64            id = 1;
-  uint64     client_id = 2;
-  uint32      priority = 3;
-  uint32 cleaning_type = 4;
+  uint64                      id = 1;
+  uint64               client_id = 2;
+  uint32                priority = 3;
+  uint32           cleaning_type = 4;
+  optional uint64   generator_id = 5;
+  optional uint32         status = 6;
+  optional double time_in_buffer = 7;
 }
 
 message AppendRequestIn {
   Request req = 1;
-}
-
-message AppendRequestOut {
-  uint64 size = 1;
-  bool status = 2;
 }
 
 message PopTopOut {

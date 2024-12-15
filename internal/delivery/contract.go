@@ -1,4 +1,4 @@
-package logic
+package delivery
 
 import (
 	"context"
@@ -7,6 +7,6 @@ import (
 )
 
 type BufferLogic interface {
-	AppendRequest(context.Context, *dto.AppendRequestIn) (*dto.AppendRequestOut, error)
+	AppendRequest(context.Context, *dto.AppendRequestIn) error
 	PopTop(context.Context) (*dto.PopTopOut, error)
 }
